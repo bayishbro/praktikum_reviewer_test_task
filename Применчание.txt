@@ -1,0 +1,103 @@
+import datetime as dt
+import json  # Лишняя библиотека которая нигде не используется
+
+# Где docstring должно быть описание что делает класс или метод
+# Для соблюдения стандарта PEP8 можно попробовать библиотеку pylint 
+
+
+class Record:
+    """docstring"""  
+
+    def __init__(self, amount, comment, date=''):
+        """docstring"""
+
+        self.comment = comment # нужно соблюдать поочередность как в конструкторе __init__
+        self.amount = amount  
+
+        # для проверки использвал функцию isinstance()
+        self.date = dt.datetime.now().date() if not date else dt.datetime.strptime(
+            date, '%d.%m.%Y').date()
+
+
+class Calculator:
+    """docstring"""
+
+    def __init__(self, limit):
+        """docstring"""
+
+        self.limit = limit
+        self.records = []
+
+    def add_record(self, record):
+        """docstring"""
+
+        self.records.append(record)
+
+
+    #Здесь можно создать функцию которая будет расчитывать дни и get_today_stats с get_week_stats возвращать кол-во дней
+    def get_today_stats(self):
+        """docstring"""
+
+        today_stats = 0
+        for Record in self.records:
+            if Record.date == dt.datetime.now().date():
+                today_stats = today_stats+Record.amount
+        return today_stats
+
+    def get_week_stats(self):
+        """docstring"""
+
+        week_stats = 0
+        today = dt.datetime.now().date()
+        for record in self.records:
+            if (today - record.date).days < 7 and (today - record.date).days >= 0:
+                week_stats += record.amount
+        return week_stats
+
+
+class CaloriesCalculator(Calculator):
+    """docstring"""
+
+    def get_calories_remained(self):  # Получает остаток калорий на сегодня
+        x = self.limit-self.get_today_stats()
+        if x > 0:
+            return f'Сегодня можно съесть что-нибудь ещё, но с общей калорийностью не более {x} кКал'
+        else:
+            return 'Хватит есть!'
+
+
+class CashCalculator(Calculator):
+    """docstring"""
+    #Здесь создал преременную для рубля
+    USD_RATE = 60.0
+    EURO_RATE = 70.0 
+
+    def get_today_cash_remained(self, currency, USD_RATE=USD_RATE, EURO_RATE=EURO_RATE):
+        """docstring"""
+
+        #В этом случае можно использвать switch case чтобы сократить кол-во строк кода
+        currency_type = currency
+        cash_remained = self.limit - self.get_today_stats()
+        if currency == 'usd':
+            cash_remained /= USD_RATE
+            currency_type = 'USD'
+        elif currency_type == 'eur':
+            cash_remained /= EURO_RATE
+            currency_type = 'Euro'
+        elif currency_type == 'rub':
+            cash_remained == 1.00
+            currency_type = 'руб'
+        if cash_remained > 0:
+            return f'На сегодня осталось {round(cash_remained, 2)} {currency_type}'
+        elif cash_remained == 0:
+            return 'Денег нет, держись'
+        elif cash_remained < 0:
+            return 'Денег нет, держись: твой долг - {0:.2f} {1}'.format(-cash_remained, currency_type)
+
+    def get_week_stats(self):
+        """docstring"""
+
+        super().get_week_stats()
+
+#Был упущен if __name__ == "__main__":
+
